@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="fr"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Stock JETT</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<style>
+:root{--font-sans:system-ui,sans-serif;--color-background-primary:#fff;--color-background-secondary:#f5f5f3;--color-background-tertiary:#eeece6;--color-text-primary:#1a1a18;--color-text-secondary:#6b6b66;--color-text-tertiary:#9b9b96;--color-border-tertiary:rgba(0,0,0,.15);--color-border-secondary:rgba(0,0,0,.3);--border-radius-md:8px;--border-radius-lg:12px}
+body{margin:0;background:var(--color-background-tertiary);font-family:var(--font-sans)}
+#loginOverlay{position:fixed;inset:0;background:rgba(26,26,24,.6);z-index:200;display:flex;align-items:center;justify-content:center}
+#loginOverlay.hidden{display:none!important}
+.login-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:14px;padding:2.25rem 2.5rem;width:100%;max-width:360px;box-sizing:border-box;box-shadow:0 8px 32px rgba(0,0,0,.14)}
+.login-logo{display:flex;align-items:center;gap:12px;margin-bottom:1.75rem}
+.login-logo-icon{width:44px;height:44px;background:#EAF3DE;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.login-title{font-size:18px;font-weight:500;color:var(--color-text-primary)}
+.login-sub{font-size:13px;color:var(--color-text-secondary);margin-top:2px}
+.field{margin-bottom:1rem}
+.field label{display:block;font-size:11px;font-weight:500;color:var(--color-text-secondary);margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em}
+.field input{width:100%;box-sizing:border-box;padding:10px 12px;font-size:14px;border:0.5px solid var(--color-border-secondary);border-radius:8px;background:var(--color-background-primary);color:var(--color-text-primary);font-family:var(--font-sans);transition:border-color .15s}
+.field input:focus{outline:none;border-color:#639922;box-shadow:0 0 0 3px rgba(99,153,34,.12)}
+.login-btn{width:100%;padding:11px;background:#639922;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:500;cursor:pointer;font-family:var(--font-sans);margin-top:.5rem}
+.login-btn:hover{opacity:.88}
+.login-err{font-size:13px;color:#A32D2D;margin-top:.75rem;min-height:18px;font-weight:500;text-align:center}
+#adminPanel{position:fixed;inset:0;background:rgba(26,26,24,.55);z-index:300;display:none;align-items:center;justify-content:center}
+#adminPanel.open{display:flex}
+.admin-modal{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:14px;padding:1.75rem 2rem;width:100%;max-width:440px;box-sizing:border-box;max-height:90vh;overflow-y:auto}
+.admin-modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem}
+.admin-modal-title{font-size:15px;font-weight:500;color:var(--color-text-primary);display:flex;align-items:center;gap:8px}
+.admin-close{width:32px;height:32px;border-radius:8px;border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--color-text-secondary)}
+.admin-close:hover{background:var(--color-background-secondary)}
+.admin-info{font-size:12px;color:var(--color-text-secondary);background:#E6F1FB;border-radius:8px;padding:10px 12px;margin-bottom:14px;display:flex;align-items:flex-start;gap:8px;line-height:1.5}
+.users-title{font-size:11px;font-weight:500;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px}
+.user-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.u-input{font-size:13px;padding:7px 10px;border:0.5px solid var(--color-border-secondary);border-radius:8px;background:var(--color-background-primary);color:var(--color-text-primary);font-family:var(--font-sans);flex:1;min-width:80px}
+.u-del{width:30px;height:30px;border-radius:8px;border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;color:#A32D2D;flex-shrink:0}
+.u-del:hover{background:#FCEBEB}
+.u-add{display:block;width:100%;box-sizing:border-box;padding:8px 14px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;font-family:var(--font-sans);margin-top:10px;background:#EAF3DE;color:#3B6D11;border:0.5px solid #639922}
+.save-users-btn{display:block;width:100%;box-sizing:border-box;padding:9px 14px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;font-family:var(--font-sans);margin-top:8px;background:#185FA5;color:#fff;border:none}
+.save-users-btn:hover{opacity:.9}
+.fb-users{font-size:12px;color:#3B6D11;margin-top:8px;min-height:16px;font-weight:500}
+#wrap{max-width:960px;margin:0 auto;padding:16px}
+#app{display:none;padding:1rem 0}
+.topnav{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;padding-bottom:1rem;border-bottom:0.5px solid var(--color-border-tertiary);flex-wrap:wrap;gap:8px}
+.topnav-left{display:flex;align-items:center;gap:10px}
+.logout-btn{padding:6px 14px;border-radius:8px;border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-secondary);font-size:13px;cursor:pointer;font-family:var(--font-sans)}
+.logout-btn:hover{background:var(--color-background-secondary)}
+.admin-btn{padding:6px 14px;border-radius:8px;border:none;background:#E6F1FB;color:#185FA5;font-size:13px;font-weight:500;cursor:pointer;font-family:var(--font-sans)}
+.admin-btn:hover{background:#B5D4F4}
+.toolbar{display:flex;gap:10px;align-items:center;margin-bottom:1.25rem;flex-wrap:wrap}
+.mode-btn{padding:8px 18px;border-radius:8px;border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-secondary);font-size:14px;cursor:pointer;font-family:var(--font-sans)}
+.mode-btn.m-receive{background:#EAF3DE;border-color:#639922;color:#3B6D11;font-weight:500}
+.mode-btn.m-sell{background:#FCEBEB;border-color:#E24B4A;color:#A32D2D;font-weight:500}
+.scan-box,.add-box{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:12px;padding:1.25rem;margin-bottom:1.25rem}
+.scan-row,.add-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.scan-input{flex:1;font-size:15px;padding:10px 14px;border:0.5px solid var(--color-border-secondary);border-radius:8px;background:var(--color-background-primary);color:var(--color-text-primary);font-family:var(--font-sans)}
+.qty-input{width:68px;padding:10px 8px;border:0.5px solid var(--color-border-secondary);border-radius:8px;background:var(--color-background-primary);color:var(--color-text-primary);font-size:15px;font-family:var(--font-sans);text-align:center}
+.val-btn{padding:10px 18px;border-radius:8px;border:none;font-size:14px;font-weight:500;cursor:pointer;font-family:var(--font-sans);white-space:nowrap}
+.v-receive{background:#639922;color:#fff}.v-sell{background:#E24B4A;color:#fff}
+.feedback{font-size:13px;margin-top:8px;min-height:18px;font-weight:500}
+.fb-ok{color:#3B6D11}.fb-err{color:#A32D2D}
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.25rem}
+.stat{background:var(--color-background-secondary);border-radius:8px;padding:12px 14px}
+.stat-lbl{font-size:11px;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+.stat-val{font-size:22px;font-weight:500;color:var(--color-text-primary)}
+.tbl-wrap{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:12px;overflow:hidden}
+table{width:100%;border-collapse:collapse;font-size:14px;table-layout:fixed}
+thead th{background:var(--color-background-secondary);padding:9px 14px;text-align:left;font-weight:500;color:var(--color-text-secondary);font-size:12px;text-transform:uppercase;letter-spacing:.04em;border-bottom:0.5px solid var(--color-border-tertiary)}
+thead th:nth-child(1){width:12%}thead th:nth-child(2){width:21%}thead th:nth-child(3){width:15%}thead th:nth-child(4){width:9%}thead th:nth-child(5){width:12%}thead th:nth-child(6){width:11%}thead th:nth-child(7){width:8%}
+tbody tr{border-bottom:0.5px solid var(--color-border-tertiary)}tbody tr:last-child{border-bottom:none}
+tbody tr.hl-g{background:#EAF3DE}tbody tr.hl-r{background:#FCEBEB}
+td{padding:8px 14px;color:var(--color-text-primary);vertical-align:middle;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.qty-cell{font-weight:500;font-size:16px}.qty-low{color:#A32D2D}.qty-ok{color:#3B6D11}
+.badge{display:inline-block;font-size:11px;padding:2px 8px;border-radius:99px}
+.b-low{background:#FCEBEB;color:#A32D2D}.b-ok{background:#EAF3DE;color:#3B6D11}.b-zero{background:#F7C1C1;color:#791F1F;font-weight:500}
+.adj-btn{width:28px;height:28px;border-radius:8px;border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;color:var(--color-text-primary);margin:0 2px}
+.adj-btn:hover{background:var(--color-background-secondary)}
+.del-row-btn{width:28px;height:28px;border-radius:8px;border:0.5px solid #F09595;background:var(--color-background-primary);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;color:#A32D2D;transition:background .12s}
+.del-row-btn:hover{background:#FCEBEB}
+/* Modale confirmation suppression */
+#confirmModal{position:fixed;inset:0;background:rgba(26,26,24,.55);z-index:500;display:none;align-items:center;justify-content:center}
+#confirmModal.open{display:flex}
+.confirm-box{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:12px;padding:1.75rem 2rem;width:100%;max-width:380px;box-sizing:border-box}
+.confirm-icon{width:44px;height:44px;background:#FCEBEB;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:1rem}
+.confirm-title{font-size:15px;font-weight:500;color:var(--color-text-primary);margin-bottom:.4rem}
+.confirm-sub{font-size:13px;color:var(--color-text-secondary);margin-bottom:1.5rem;line-height:1.5}
+.confirm-ref{font-weight:500;color:var(--color-text-primary)}
+.confirm-actions{display:flex;gap:8px;justify-content:flex-end}
+.btn-del-confirm{padding:8px 20px;border-radius:8px;border:none;background:#E24B4A;color:#fff;font-size:13px;font-weight:500;cursor:pointer;font-family:var(--font-sans)}
+.btn-del-confirm:hover{opacity:.9}
+.top-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px}
+.search-input{padding:7px 12px;font-size:13px;border:0.5px solid var(--color-border-secondary);border-radius:8px;background:var(--color-background-primary);color:var(--color-text-primary);font-family:var(--font-sans);width:160px}
+.section-lbl{font-size:13px;font-weight:500;color:var(--color-text-secondary)}
+.export-btn{padding:7px 14px;border-radius:8px;border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-secondary);font-size:13px;cursor:pointer;font-family:var(--font-sans)}
+.export-btn:hover{background:var(--color-background-secondary)}
+.save-html-btn{padding:7px 14px;border-radius:8px;border:none;background:#185FA5;color:#fff;font-size:13px;font-weight:500;cursor:pointer;font-family:var(--font-sans)}
+.save-html-btn:hover{opacity:.9}
+.log-wrap{margin-top:1.25rem;background:var(--color-background-secondary);border-radius:12px;padding:1rem;max-height:140px;overflow-y:auto}
+.log-title{font-size:12px;font-weight:500;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.log-entry{font-size:12px;color:var(--color-text-secondary);padding:3px 0;border-bottom:0.5px solid var(--color-border-tertiary);display:flex;gap:8px;align-items:baseline}
+.log-entry:last-child{border-bottom:none}
+.log-time{color:var(--color-text-tertiary);font-size:11px;white-space:nowrap}
+.log-plus{color:#3B6D11;font-weight:500}.log-minus{color:#A32D2D;font-weight:500}
+.add-input{font-size:14px;padding:9px 12px;border:0.5px solid var(--color-border-secondary);border-radius:8px;background:var(--color-background-primary);color:var(--color-text-primary);font-family:var(--font-sans)}
+.add-ref{width:95px}.add-des{flex:1;min-width:110px}.add-zone{width:90px}.add-qty{width:60px;text-align:center}
+.add-btn{padding:9px 16px;border-radius:8px;border:none;background:#639922;color:#fff;font-size:14px;font-weight:500;cursor:pointer;font-family:var(--font-sans)}
+.add-btn:hover{opacity:.9}
+.edit-cell{font-size:13px;padding:3px 7px;border:0.5px solid var(--color-border-secondary);border-radius:8px;background:var(--color-background-primary);color:var(--color-text-primary);font-family:var(--font-sans);width:100%;box-sizing:border-box}
+.import-btn{padding:7px 14px;border-radius:8px;border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-secondary);font-size:13px;cursor:pointer;font-family:var(--font-sans)}
+.import-btn:hover{background:var(--color-background-secondary)}
+.export-stock-btn{padding:7px 14px;border-radius:8px;border:none;background:#3B6D11;color:#fff;font-size:13px;font-weight:500;cursor:pointer;font-family:var(--font-sans)}
+.export-stock-btn:hover{opacity:.9}
+/* Modale import */
+#importModal{position:fixed;inset:0;background:rgba(26,26,24,.55);z-index:400;display:none;align-items:center;justify-content:center}
+#importModal.open{display:flex}
+.import-modal{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:14px;padding:1.75rem 2rem;width:100%;max-width:560px;box-sizing:border-box;max-height:90vh;overflow-y:auto}
+.import-modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem}
+.import-modal-title{font-size:15px;font-weight:500;color:var(--color-text-primary);display:flex;align-items:center;gap:8px}
+.import-close{width:32px;height:32px;border-radius:8px;border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--color-text-secondary)}
+.import-close:hover{background:var(--color-background-secondary)}
+.drop-zone{border:1.5px dashed var(--color-border-secondary);border-radius:10px;padding:2rem;text-align:center;cursor:pointer;transition:border-color .15s,background .15s;margin-bottom:1rem}
+.drop-zone:hover,.drop-zone.drag-over{border-color:#639922;background:#EAF3DE}
+.drop-zone-icon{font-size:32px;color:var(--color-text-tertiary);margin-bottom:.5rem}
+.drop-zone-txt{font-size:14px;color:var(--color-text-secondary)}
+.drop-zone-sub{font-size:12px;color:var(--color-text-tertiary);margin-top:4px}
+.import-preview{margin-top:1rem}
+.preview-title{font-size:12px;font-weight:500;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.preview-tbl-wrap{max-height:220px;overflow-y:auto;border:0.5px solid var(--color-border-tertiary);border-radius:8px}
+.preview-tbl{width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed}
+.preview-tbl thead th{background:var(--color-background-secondary);padding:7px 10px;text-align:left;font-weight:500;color:var(--color-text-secondary);font-size:11px;text-transform:uppercase;letter-spacing:.04em;border-bottom:0.5px solid var(--color-border-tertiary);position:sticky;top:0}
+.preview-tbl tbody tr{border-bottom:0.5px solid var(--color-border-tertiary)}
+.preview-tbl tbody tr:last-child{border-bottom:none}
+.preview-tbl td{padding:6px 10px;color:var(--color-text-primary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.import-options{margin:1rem 0;display:flex;gap:16px;flex-wrap:wrap}
+.import-opt{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--color-text-secondary);cursor:pointer}
+.import-opt input[type=radio]{accent-color:#639922}
+.import-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:1rem}
+.btn-cancel{padding:8px 18px;border-radius:8px;border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-secondary);font-size:13px;cursor:pointer;font-family:var(--font-sans)}
+.btn-cancel:hover{background:var(--color-background-secondary)}
+.btn-confirm{padding:8px 20px;border-radius:8px;border:none;background:#639922;color:#fff;font-size:13px;font-weight:500;cursor:pointer;font-family:var(--font-sans)}
+.btn-confirm:hover{opacity:.9}
+.btn-confirm:disabled{opacity:.4;cursor:not-allowed}
+.import-info{font-size:12px;color:var(--color-text-secondary);background:var(--color-background-secondary);border-radius:8px;padding:10px 12px;margin-bottom:1rem;line-height:1.5}
+.import-err{font-size:12px;color:#A32D2D;font-weight:500;margin-top:6px;min-height:16px}
+.import-ok{font-size:12px;color:#3B6D11;font-weight:500;margin-top:6px;min-height:16px}
+</style>
+</head>
+<body>
+
+<!-- LOGIN — toujours visible à l'ouverture -->
+<div id="loginOverlay">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-logo-icon"><i class="ti ti-package" style="font-size:22px;color:#3B6D11"></i></div>
+      <div><div class="login-title">Stock JETT</div><div class="login-sub">Connexion requise</div></div>
+    </div>
+    <div class="field"><label>Identifiant</label><input type="text" id="loginUser" placeholder="Votre identifiant" autocomplete="username"></div>
+    <div class="field"><label>Mot de passe</label><input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password"></div>
+    <button class="login-btn" id="loginBtn"><i class="ti ti-login" style="font-size:15px;vertical-align:-2px;margin-right:6px"></i>Se connecter</button>
+    <div class="login-err" id="loginErr"></div>
+  </div>
+</div>
+
+<!-- MODALE IMPORT -->
+<div id="importModal" class="">
+  <div class="import-modal">
+    <div class="import-modal-header">
+      <div class="import-modal-title"><i class="ti ti-file-import" style="font-size:16px;color:#639922"></i>Importer un stock</div>
+      <button class="import-close" id="importCloseBtn"><i class="ti ti-x" style="font-size:15px"></i></button>
+    </div>
+    <div class="import-info">
+      <i class="ti ti-info-circle" style="font-size:14px;vertical-align:-2px;margin-right:5px;color:var(--color-text-tertiary)"></i>
+      Fichier CSV accepté (séparateur <strong>;</strong> ou <strong>,</strong>). Colonnes attendues dans l'ordre :
+      <strong>Référence</strong>, <strong>Désignation</strong>, <strong>Zone stockage</strong>, <strong>Quantité</strong>.
+      La colonne Statut est ignorée à l'import (calculée automatiquement).
+    </div>
+    <div class="drop-zone" id="dropZone">
+      <div class="drop-zone-icon"><i class="ti ti-upload" style="font-size:32px;color:var(--color-text-tertiary)"></i></div>
+      <div class="drop-zone-txt">Glissez votre fichier ici ou <span style="color:#639922;font-weight:500">parcourir</span></div>
+      <div class="drop-zone-sub">CSV (.csv) — max 5 Mo</div>
+      <input type="file" id="importFileInput" accept=".csv" style="display:none">
+    </div>
+    <div class="import-err" id="importErr"></div>
+    <div id="importPreview" style="display: block;">
+      <div class="preview-title" id="previewCount">28 ligne(s) détectée(s)</div>
+      <div class="preview-tbl-wrap">
+        <table class="preview-tbl">
+          <thead><tr><th style="width:18%">Référence</th><th style="width:30%">Désignation</th><th style="width:20%">Zone</th><th style="width:12%">Quantité</th><th style="width:20%">Statut</th></tr></thead>
+          <tbody id="previewBody"><tr><td style="font-weight:500">RÉFÉRENCE JETT</td><td>Désignation</td><td>ZONE STOCKAGE</td><td style="font-weight:500">0</td><td><span class="badge b-zero">Rupture</span></td></tr><tr><td style="font-weight:500">JETT 01</td><td>Thermoucouples Software (1020/1460))</td><td>TH2</td><td style="font-weight:500">2</td><td><span class="badge b-low">Faible</span></td></tr><tr><td style="font-weight:500">JETT 02</td><td>Thermoucouples Hardware (1020/1460)</td><td>TH3</td><td style="font-weight:500">4</td><td><span class="badge b-ok">OK</span></td></tr><tr><td style="font-weight:500">JETT 03</td><td>Thermoucouples Software NG 1460</td><td></td><td style="font-weight:500">0</td><td><span class="badge b-zero">Rupture</span></td></tr><tr><td style="font-weight:500">JETT 04</td><td>Thermoucouples Hardware NG 1460</td><td></td><td style="font-weight:500">0</td><td><span class="badge b-zero">Rupture</span></td></tr><tr><td style="font-weight:500">JETT 05</td><td>Thermoucouples Software NG 1680</td><td>TH5</td><td style="font-weight:500">4</td><td><span class="badge b-ok">OK</span></td></tr><tr><td style="font-weight:500">JETT 06</td><td>Thermoucouples Hardware NG 1680</td><td>TH1</td><td style="font-weight:500">2</td><td><span class="badge b-low">Faible</span></td></tr><tr><td style="font-weight:500">JETT 07</td><td>Thermoucouples Hardware Ecoweb 1020</td><td>TH7</td><td style="font-weight:500">4</td><td><span class="badge b-ok">OK</span></td></tr><tr><td style="font-weight:500">JETT 08</td><td>Thermoucouples Software Ecoweb 1020</td><td>TH8</td><td style="font-weight:500">4</td><td><span class="badge b-ok">OK</span></td></tr><tr><td style="font-weight:500">JETT 09</td><td>Thermoucouples Hardware 2060</td><td>TH4</td><td style="font-weight:500">3</td><td><span class="badge b-low">Faible</span></td></tr><tr><td style="font-weight:500">JETT 10</td><td>Thermoucouples Software 2060</td><td>TH6</td><td style="font-weight:500">4</td><td><span class="badge b-ok">OK</span></td></tr><tr><td style="font-weight:500">JETT 11</td><td>Capteur de proximité</td><td>15</td><td style="font-weight:500">4</td><td><span class="badge b-ok">OK</span></td></tr><tr><td style="font-weight:500">JETT 12</td><td>Bougies</td><td>127</td><td style="font-weight:500">5</td><td><span class="badge b-ok">OK</span></td></tr><tr><td style="font-weight:500">JETT 13</td><td>Tiges ionisation</td><td>138</td><td style="font-weight:500">4</td><td><span class="badge b-ok">OK</span></td></tr><tr><td style="font-weight:500">JETT 14</td><td>Potentiomètres 5Kohm  10tr</td><td>16</td><td style="font-weight:500">217</td><td><span class="badge b-ok">OK</span></td></tr><tr><td style="font-weight:500">JETT 15</td><td>TACHOGENERATEUR</td><td>1</td><td style="font-weight:500">0</td><td><span class="badge b-zero">Rupture</span></td></tr><tr><td style="font-weight:500">JETT 16</td><td>Regulateurs température</td><td>114</td><td style="font-weight:500">6</td><td><span class="badge b-ok">OK</span></td></tr><tr><td style="font-weight:500">JETT 17</td><td>Courroies</td><td>GARAGE BIZ</td><td style="font-weight:500">0</td><td><span class="badge b-zero">Rupture</span></td></tr><tr><td style="font-weight:500">JETT 18</td><td>Courroies</td><td>GARAGE BIZ</td><td style="font-weight:500">23</td><td><span class="badge b-ok">OK</span></td></tr><tr><td style="font-weight:500">JETT 19</td><td>Courroies</td><td>GARAGE BIZ</td><td style="font-weight:500">0</td><td><span class="badge b-zero">Rupture</span></td></tr><tr><td style="font-weight:500">JETT 20</td><td>Courroies</td><td></td><td style="font-weight:500">0</td><td><span class="badge b-zero">Rupture</span></td></tr><tr><td style="font-weight:500">JETT 21</td><td>Courroies</td><td></td><td style="font-weight:500">0</td><td><span class="badge b-zero">Rupture</span></td></tr><tr><td style="font-weight:500">JETT 22</td><td>Tubes de guidage 500mm</td><td>116</td><td style="font-weight:500">0</td><td><span class="badge b-zero">Rupture</span></td></tr><tr><td style="font-weight:500">JETT 23</td><td>Tubes de guidage 805mm</td><td></td><td style="font-weight:500">0</td><td><span class="badge b-zero">Rupture</span></td></tr><tr><td style="font-weight:500">JETT 24</td><td>Lampes UV</td><td>5</td><td style="font-weight:500">5</td><td><span class="badge b-ok">OK</span></td></tr><tr><td style="font-weight:500">JETT 25</td><td>Moteur vanne air chaud</td><td>85</td><td style="font-weight:500">9</td><td><span class="badge b-ok">OK</span></td></tr><tr><td style="font-weight:500">JETT 26</td><td>Pressostats Sections 0,4-3mbar</td><td>2</td><td style="font-weight:500">9</td><td><span class="badge b-ok">OK</span></td></tr><tr><td style="font-weight:500">JETT 27</td><td>Transmetteur de pression bruleur 0-10mbar</td><td></td><td style="font-weight:500">0</td><td><span class="badge b-zero">Rupture</span></td></tr></tbody>
+        </table>
+      </div>
+      <div class="import-options">
+        <span style="font-size:12px;font-weight:500;color:var(--color-text-secondary);width:100%;margin-bottom:2px">Mode d'import :</span>
+        <label class="import-opt"><input type="radio" name="importMode" value="replace" checked=""> Remplacer tout le stock</label>
+        <label class="import-opt"><input type="radio" name="importMode" value="merge"> Fusionner (mise à jour + ajout)</label>
+      </div>
+      <div class="import-ok" id="importOk"></div>
+    </div>
+    <div class="import-actions">
+      <button class="btn-cancel" id="importCancelBtn">Annuler</button>
+      <button class="btn-confirm" id="importConfirmBtn"><i class="ti ti-check" style="font-size:13px;vertical-align:-2px;margin-right:4px"></i>Importer</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODALE CONFIRMATION SUPPRESSION -->
+<div id="confirmModal" class="">
+  <div class="confirm-box">
+    <div class="confirm-icon"><i class="ti ti-trash" style="font-size:20px;color:#A32D2D"></i></div>
+    <div class="confirm-title">Supprimer cette référence ?</div>
+    <div class="confirm-sub">Vous allez supprimer définitivement la référence <span class="confirm-ref" id="confirmRef">JETT 28</span>. Cette action est irréversible.</div>
+    <div class="confirm-actions">
+      <button class="btn-cancel" id="confirmCancelBtn">Annuler</button>
+      <button class="btn-del-confirm" id="confirmDelBtn"><i class="ti ti-trash" style="font-size:13px;vertical-align:-2px;margin-right:4px"></i>Supprimer</button>
+    </div>
+  </div>
+</div>
+
+<!-- PANNEAU ADMIN -->
+<div id="adminPanel">
+  <div class="admin-modal">
+    <div class="admin-modal-header">
+      <div class="admin-modal-title"><i class="ti ti-shield-lock" style="font-size:16px;color:#185FA5"></i>Gestion des accès</div>
+      <button class="admin-close" id="adminCloseBtn"><i class="ti ti-x" style="font-size:15px"></i></button>
+    </div>
+    <div class="admin-info">
+      <i class="ti ti-info-circle" style="font-size:15px;color:#185FA5;flex-shrink:0;margin-top:1px"></i>
+      <span>Le compte <strong>admin</strong> est protégé. Ajoutez ou supprimez des comptes puis cliquez <strong>"Enregistrer"</strong> pour écrire le fichier HTML sur votre disque.</span>
+    </div>
+    <div class="users-title"><i class="ti ti-users" style="font-size:12px;vertical-align:-1px;margin-right:4px"></i>Utilisateurs</div>
+    <div id="usersList"></div>
+    <button class="u-add" id="addUserBtn"><i class="ti ti-user-plus" style="font-size:13px;vertical-align:-2px;margin-right:5px"></i>Ajouter un utilisateur</button>
+    <button class="save-users-btn" id="saveUsersBtn"><i class="ti ti-device-floppy" style="font-size:14px;vertical-align:-2px;margin-right:4px"></i>Enregistrer les accès sur le site</button>
+    <div class="fb-users" id="fbUsers"></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="wrap">
+<div id="app" style="display:none">
+  <div class="topnav">
+    <div class="topnav-left">
+      <div style="width:34px;height:34px;background:#EAF3DE;border-radius:8px;display:flex;align-items:center;justify-content:center"><i class="ti ti-package" style="font-size:17px;color:#3B6D11"></i></div>
+      <span style="font-size:15px;font-weight:500;color:var(--color-text-primary)">Stock JETT</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <span style="font-size:13px;color:var(--color-text-secondary)"><i class="ti ti-user-circle" style="font-size:14px;vertical-align:-2px;margin-right:4px"></i><span id="welcomeUser">Karima</span></span>
+      <button class="admin-btn" id="adminPanelBtn" style="display:none"><i class="ti ti-shield-lock" style="font-size:13px;vertical-align:-2px;margin-right:4px"></i>Gérer les accès</button>
+      <span id="saveIndicator" style="display: inline; font-size: 12px; color: rgb(59, 109, 17); font-weight: 500;"><i class="ti ti-check" style="font-size:13px;vertical-align:-2px;margin-right:3px"></i>Sauvegardé</span>
+      <button class="logout-btn" id="logoutBtn"><i class="ti ti-logout" style="font-size:13px;vertical-align:-2px;margin-right:4px"></i>Déconnexion</button>
+    </div>
+  </div>
+  <div class="stats-row">
+    <div class="stat"><div class="stat-lbl">Références</div><div class="stat-val" id="sTotal">28</div></div>
+    <div class="stat"><div class="stat-lbl">Stock total</div><div class="stat-val" id="sQty">1 309</div></div>
+    <div class="stat"><div class="stat-lbl">Ruptures</div><div class="stat-val" id="sZero" style="color:#A32D2D">10</div></div>
+  </div>
+  <div class="toolbar">
+    <span style="font-size:13px;font-weight:500;color:var(--color-text-secondary)">Mode :</span>
+    <button class="mode-btn m-receive" id="btnR" onclick="setMode('receive')"><i class="ti ti-package-import" style="font-size:14px;vertical-align:-2px;margin-right:5px"></i>Réception (+)</button>
+    <button class="mode-btn" id="btnS" onclick="setMode('sell')"><i class="ti ti-package-export" style="font-size:14px;vertical-align:-2px;margin-right:5px"></i>Vente (−)</button>
+  </div>
+  <div class="scan-box">
+    <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:10px;font-weight:500"><i class="ti ti-scan" style="font-size:14px;vertical-align:-2px;margin-right:4px"></i>Scannez ou tapez la référence puis appuyez sur Entrée</div>
+    <div class="scan-row">
+      <input class="scan-input" id="scanIn" type="text" placeholder="JETT 01…" autocomplete="off">
+      <input class="qty-input" type="number" id="qtyIn" min="1" value="1">
+      <button class="val-btn v-receive" id="actBtn" onclick="doScan()">Réceptionner</button>
+    </div>
+    <div class="feedback" id="fb"></div>
+  </div>
+  <div class="add-box">
+    <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:10px;font-weight:500"><i class="ti ti-circle-plus" style="font-size:14px;vertical-align:-2px;margin-right:4px"></i>Ajouter une nouvelle référence</div>
+    <div class="add-row">
+      <input class="add-input add-ref" id="newRef" type="text" placeholder="JETT 27">
+      <input class="add-input add-des" id="newDes" type="text" placeholder="Désignation">
+      <input class="add-input add-zone" id="newZone" type="text" placeholder="Zone (ex: A1)">
+      <input class="add-input add-qty" id="newQty" type="number" min="0" value="0">
+      <button class="add-btn" onclick="addRef()"><i class="ti ti-plus" style="font-size:14px;vertical-align:-2px;margin-right:4px"></i>Ajouter</button>
+    </div>
+    <div class="feedback fb-ok" id="fbAdd"></div>
+  </div>
+  <div class="top-bar">
+    <span class="section-lbl"><i class="ti ti-table" style="font-size:14px;vertical-align:-2px;margin-right:5px"></i>Pièces &amp; Fournisseur JETT</span>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <input class="search-input" type="text" id="srch" placeholder="Rechercher…" oninput="render()">
+      <button class="import-btn" id="openImportBtn"><i class="ti ti-file-import" style="font-size:14px;vertical-align:-2px;margin-right:4px"></i>Importer</button>
+      <button class="export-stock-btn" onclick="exportStockCSV()"><i class="ti ti-file-export" style="font-size:14px;vertical-align:-2px;margin-right:4px"></i>Exporter</button>
+      <button class="save-html-btn" onclick="saveHTML()"><i class="ti ti-device-floppy" style="font-size:14px;vertical-align:-2px;margin-right:4px"></i>Enregistrer HTML</button>
+    </div>
+  </div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Référence</th><th>Désignation</th><th>Zone stockage</th><th>Quantité</th><th>Statut</th><th>Ajuster</th><th>Suppr.</th></tr></thead>
+      <tbody id="tbody"><tr class=""><td style="font-weight:500">JETT 01</td><td><input class="edit-cell" type="text" value="Thermoucouples Software (1020/1460))" placeholder="—" oninput="saveField('JETT 01','des',this.value)"></td><td><input class="edit-cell" type="text" value="TH2" placeholder="—" oninput="saveField('JETT 01','zone',this.value)" style="text-transform:uppercase"></td><td class="qty-cell qty-low">2</td><td><span class="badge b-low">Faible</span></td><td><button class="adj-btn" onclick="adj('JETT 01',1)"><i class="ti ti-plus" style="font-size:13px"></i></button><button class="adj-btn" onclick="adj('JETT 01',-1)"><i class="ti ti-minus" style="font-size:13px"></i></button></td><td><button class="del-row-btn" onclick="askDeleteRow('JETT 01')" title="Supprimer cette référence"><i class="ti ti-trash" style="font-size:13px"></i></button></td></tr><tr class=""><td style="font-weight:500">JETT 02</td><td><input class="edit-cell" type="text" value="Thermoucouples Hardware (1020/1460)" placeholder="—" oninput="saveField('JETT 02','des',this.value)"></td><td><input class="edit-cell" type="text" value="TH3" placeholder="—" oninput="saveField('JETT 02','zone',this.value)" style="text-transform:uppercase"></td><td class="qty-cell qty-ok">4</td><td><span class="badge b-ok">OK</span></td><td><button class="adj-btn" onclick="adj('JETT 02',1)"><i class="ti ti-plus" style="font-size:13px"></i></button><button class="adj-btn" onclick="adj('JETT 02',-1)"><i class="ti ti-minus" style="font-size:13px"></i></button></td><td><button class="del-row-btn" onclick="askDeleteRow('JETT 02')" title="Supprimer cette référence"><i class="ti ti-trash" style="font-size:13px"></i></button></td></tr><tr class=""><td style="font-weight:500">JETT 03</td><td><input class="edit-cell" type="text" value="Thermoucouples Software NG 1460" placeholder="—" oninput="saveField('JETT 03','des',this.value)"></td><td><input class="edit-cell" type="text" value="" placeholder="—" oninput="saveField('JETT 03','zone',this.value)" style="text-transform:uppercase"></td><td class="qty-cell qty-low">0</td><td><span class="badge b-zero">Rupture</span></td><td><button class="adj-btn" onclick="adj('JETT 03',1)"><i class="ti ti-plus" style="font-size:13px"></i></button><button class="adj-btn" onclick="adj('JETT 03',-1)"><i class="ti ti-minus" style="font-size:13px"></i></button></td><td><button class="del-row-btn" onclick="askDeleteRow('JETT 03')" title="Supprimer cette référence"><i class="ti ti-trash" style="font-size:13px"></i></button></td></tr><tr class=""><td style="font-weight:500">JETT 04</td><td><input class="edit-cell" type="text" value="Thermoucouples Hardware NG 1460" placeholder="—" oninput="saveField('JETT 04','des',this.value)"></td><td><input class="edit-cell" type="text" value="" placeholder="—" oninput="saveField('JETT 04','zone',this.value)" style="text-transform:uppercase"></td><td class="qty-cell qty-low">0</td><td><span class="badge b-zero">Rupture</span></td><td><button class="adj-btn" onclick="adj('JETT 04',1)"><i class="ti ti-plus" style="font-size:13px"></i></button><button class="adj-btn" onclick="adj('JETT 04',-1)"><i class="ti ti-minus" style="font-size:13px"></i></button></td><td><button class="del-row-btn" onclick="askDeleteRow('JETT 04')" title="Supprimer cette référence"><i class="ti ti-trash" style="font-size:13px"></i></button></td></tr><tr class=""><td style="font-weight:500">JETT 05</td><td><input class="edit-cell" type="text" value="Thermoucouples Software NG 1680" placeholder="—" oninput="saveField('JETT 05','des',this.value)"></td><td><input class="edit-cell" type="text" value="TH5" placeholder="—" oninput="saveField('JETT 05','zone',this.value)" style="text-transform:uppercase"></td><td class="qty-cell qty-ok">4</td><td><span class="badge b-ok">OK</span></td><td><button class="adj-btn" onclick="adj('JETT 05',1)"><i class="ti ti-plus" style="font-size:13px"></i></button><button class="adj-btn" onclick="adj('JETT 05',-1)"><i class="ti ti-minus" style="font-size:13px"></i></button></td><td><button class="del-row-btn" onclick="askDeleteRow('JETT 05')" title="Supprimer cette référence"><i class="ti ti-trash" style="font-size:13px"></i></button></td></tr><tr class=""><td style="font-weight:500">JETT 06</td><td><input class="edit-cell" type="text" value="Thermoucouples Hardware NG 1680" placeholder="—" oninput="saveField('JETT 06','des',this.value)"></td><td><input class="edit-cell" type="text" value="TH1" placeholder="—" oninput="saveField('JETT 06','zone',this.value)" style="text-transform:uppercase"></td><td class="qty-cell qty-low">2</td><td><span class="badge b-low">Faible</span></td><td><button class="adj-btn" onclick="adj('JETT 06',1)"><i class="ti ti-plus" style="font-size:13px"></i></button><button class="adj-btn" onclick="adj('JETT 06',-1)"><i class="ti ti-minus" style="font-size:13px"></i></button></td><td><button class="del-row-btn" onclick="askDeleteRow('JETT 06')" title="Supprimer cette référence"><i class="ti ti-trash" style="font-size:13px"></i></button></td></tr><tr class=""><td style="font-weight:500">JETT 07</td><td><input class="edit-cell" type="text" value="Thermoucouples Hardware Ecoweb 1020" placeholder="—" oninput="saveField('JETT 07','des',this.value)"></td><td><input class="edit-cell" type="text" value="TH7" placeholder="—" oninput="saveField('JETT 07','zone',this.value)" style="text-transform:uppercase"></td><td class="qty-cell qty-ok">4</td><td><span class="badge b-ok">OK</span></td><td><button class="adj-btn" onclick="adj('JETT 07',1)"><i class="ti ti-plus" style="font-size:13px"></i></button><button class="adj-btn" onclick="adj('JETT 07',-1)"><i class="ti ti-minus" style="font-size:13px"></i></button></td><td><button class="del-row-btn" onclick="askDeleteRow('JETT 07')" title="Supprimer cette référence"><i class="ti ti-trash" style="font-size:13px"></i></button></td></tr><tr class=""><td style="font-weight:500">JETT 08</td><td><input class="edit-cell" type="text" value="Thermoucouples Software Ecoweb 1020" placeholder="—" oninput="saveField('JETT 08','des',this.value)"></td><td><input class="edit-cell" type="text" value="TH8" placeholder="—" oninput="saveField('JETT 08','zone',this.value)" style="text-transform:uppercase"></td><td class="qty-cell qty-ok">4</td><td><span class="badge b-ok">OK</span></td><td><button class="adj-btn" onclick="adj('JETT 08',1)"><i class="ti ti-plus" style="font-size:13px"></i></button><button class="adj-btn" onclick="adj('JETT 08',-1)"><i class="ti ti-minus" style="font-size:13px"></i></button></td><td><button class="del-row-btn" onclick="askDeleteRow('JETT 08')" title="Supprimer cette référence"><i class="ti ti-trash" style="font-size:13px"></i></button></td></tr><tr class=""><td style="font-weight:500">JETT 09</td><td><input class="edit-cell" type="text" value="Thermoucouples Hardware 2060" placeholder="—" oninput="saveField('JETT 09','des',this.value)"></td><td><input class="edit-cell" type="text" value="TH4" placeholder="—" oninput="saveField('JETT 09','zone',this.value)" style="text-transform:uppercase"></td><td class="qty-cell qty-low">3</td><td><span class="badge b-low">Faible</span></td><td><button class="adj-btn" onclick="adj('JETT 09',1)"><i class="ti ti-plus" style="font-size:13px"></i></button><button class="adj-btn" onclick="adj('JETT 09',-1)"><i class="ti ti-minus" style="font-size:13px"></i></button></td><td><button class="del-row-btn" onclick="askDeleteRow('JETT 09')" title="Supprimer cette référence"><i class="ti ti-trash" style="font-size:13px"></i></button></td></tr><tr class=""><td style="font-weight:500">JETT 10</td><td><input class="edit-cell" type="text" value="Thermoucouples Software 2060" placeholder="—" oninput="saveField('JETT 10','des',this.value)"></td><td><input class="edit-cell" type="text" value="TH6" placeholder="—" oninput="saveField('JETT 10','zone',this.value)" style="text-transform:uppercase"></td><td class="qty-cell qty-ok">4</td><td><span class="badge b-ok">OK</span></td><td><button class="adj-btn" onclick="adj('JETT 10',1)"><i class="ti ti-plus" style="font-size:13px"></i></button><button class="adj-btn" onclick="adj('JETT 10',-1)"><i class="ti ti-minus" style="font-size:13px"></i></button></td><td><button class="del-row-btn" onclick="askDeleteRow('JETT 10')" title="Supprimer cette référence"><i class="ti ti-trash" style="font-size:13px"></i></button></td></tr><tr class=""><td style="font-weight:500">JETT 11</td><td><input class="edit-cell" type="text" value="Capteur de proximité" placeholder="—" oninput="saveField('JETT 11','des',this.value)"></td><td><input class="edit-cell" type="text" value="15" placeholder="—" oninput="saveField('JETT 11','zone',this.value)" style="text-transform:uppercase"></td><td class="qty-cell qty-ok">4</td><td><span class="badge b-ok">OK</span></td><td><button class="adj-btn" onclick="adj('JETT 11',1)"><i class="ti ti-plus" style="font-size:13px"></i></button><button class="adj-btn" onclick="adj('JETT 11',-1)"><i class="ti ti-minus" style="font-size:13px"></i></button></td><td><button class="del-row-btn" onclick="askDeleteRow('JETT 11')" title="Supprimer cette référence"><i class="ti ti-trash" style="font-size:13px"></i></button></td></tr><tr class=""><td style="font-weight:500">JETT 12</td><td><input class="edit-cell" type="text" value="Bougies" placeholder="—" oninput="saveField('JETT 12','des',this.value)"></td><td><input class="edit-cell" type="text" value="127" placeholder="—" oninput="saveField('JETT 12','zone',this.value)" style="text-transform:uppercase"></td><td class="qty-cell qty-ok">5</td><td><span class="badge b-ok">OK</span></td><td><button class="adj-btn" onclick="adj('JETT 12',1)"><i class="ti ti-plus" style="font-size:13px"></i></button><button class="adj-btn" onclick="adj('JETT 12',-1)"><i class="ti ti-minus" style="font-size:13px"></i></button></td><td><button class="del-row-btn" onclick="askDeleteRow('JETT 12')" title="Supprimer cette référence"><i class="ti ti-trash" style="font-size:13px"></i></button></td></tr><tr class=""><td style="font-weight:500">JETT 13</td><td><input class="edit-cell" type="text" value="Tiges ionisation" placeholder="—" oninput="saveField('JETT 13','des',this.value)"></td><td><input class="edit-cell" type="text" value="138" placeholder="—" oninput="saveField('JETT 13','zone',this.value)" style="text-transform:uppercase"></td><td class="qty-cell qty-ok">4</td><td><span class="badge b-ok">OK</span></td><td><button class="adj-btn" onclick="adj('JETT 13',1)"><i class="ti ti-plus" style="font-size:13px"></i></button><button class="adj-btn" onclick="adj('JETT 13',-1)"><i class="ti ti-minus" style="font-size:13px"></i></button></td><td><button class="del-row-btn" onclick="askDeleteRow('JETT 13')" title="Supprimer cette référence"><i class="ti ti-trash" style="font-size:13px"></i></button></td></tr><tr class=""><td style="font-weight:500">JETT 14</td><td><input class="edit-cell" type="text" value="Potentiomètres 5Kohm  10tr" placeholder="—" oninput="saveField('JETT 14','des',this.value)"></td><td><input class="edit-cell" type="text" value="16" placeholder="—" oninput="saveField('JETT 14','zone',this.value)" style="text-transform:uppercase"></td><td class="qty-cell qty-ok">217</td><td><span class="badge b-ok">OK</span></td><td><button class="adj-btn" onclick="adj('JETT 14',1)"><i class="ti ti-plus" style="font-size:13px"></i></button><button class="adj-btn" onclick="adj('JETT 14',-1)"><i class="ti ti-minus" style="font-size:13px"></i></button></td><td><button class="del-row-btn" onclick="askDeleteRow('JETT 14')" title="Supprimer cette référence"><i class="ti ti-trash" style="font-size:13px"></i></button></td></tr><tr class=""><td style="font-weight:500">JETT 15</td><td><input class="edit-cell" type="text" value="TACHOGENERATEUR" placeholder="—" oninput="saveField('JETT 15','des',this.value)"></td><td><input class="edit-cell" type="text" value="1" placeholder="—" oninput="saveField('JETT 15','zone',this.value)" style="text-transform:uppercase"></td><td class="qty-cell qty-low">0</td><td><span class="badge b-zero">Rupture</span></td><td><button class="adj-btn" onclick="adj('JETT 15',1)"><i class="ti ti-plus" style="font-size:13px"></i></button><button class="adj-btn" onclick="adj('JETT 15',-1)"><i class="ti ti-minus" style="font-size:13px"></i></button></td><td><button class="del-row-btn" onclick="askDeleteRow('JETT 15')" title="Supprimer cette référence"><i class="ti ti-trash" style="font-size:13px"></i></button></td></tr><tr class=""><td style="font-weight:500">JETT 16</td><td><input class="edit-cell" type="text" value="Regulateurs température" placeholder="—" oninput="saveField('JETT 16','des',this.value)"></td><td><input class="edit-cell" type="text" value="114" placeholder="—" oninput="saveField('JETT 16','zone',this.value)" style="text-transform:uppercase"></td><td class="qty-cell qty-ok">6</td><td><span class="badge b-ok">OK</span></td><td><button class="adj-btn" onclick="adj('JETT 16',1)"><i class="ti ti-plus" style="font-size:13px"></i></button><button class="adj-btn" onclick="adj('JETT 16',-1)"><i class="ti ti-minus" style="font-size:13px"></i></button></td><td><button class="del-row-btn" onclick="askDeleteRow('JETT 16')" title="Supprimer cette référence"><i class="ti ti-trash" style="font-size:13px"></i></button></td></tr><tr class=""><td style="font-weight:500">JETT 17</td><td><input class="edit-cell" type="text" value="Courroies" placeholder="—" oninput="saveField('JETT 17','des',this.value)"></td><td><input class="edit-cell" type="text" value="GARAGE BIZ" placeholder="—" oninput="saveField('JETT 17','zone',this.value)" style="text-transform:uppercase"></td><td class="qty-cell qty-low">0</td><td><span class="badge b-zero">Rupture</span></td><td><button class="adj-btn" onclick="adj('JETT 17',1)"><i class="ti ti-plus" style="font-size:13px"></i></button><button class="adj-btn" onclick="adj('JETT 17',-1)"><i class="ti ti-minus" style="font-size:13px"></i></button></td><td><button class="del-row-btn" onclick="askDeleteRow('JETT 17')" title="Supprimer cette référence"><i class="ti ti-trash" style="font-size:13px"></i></button></td></tr><tr class=""><td style="font-weight:500">JETT 18</td><td><input class="edit-cell" type="text" value="Courroies" placeholder="—" oninput="saveField('JETT 18','des',this.value)"></td><td><input class="edit-cell" type="text" value="GARAGE BIZ" placeholder="—" oninput="saveField('JETT 18','zone',this.value)" style="text-transform:uppercase"></td><td class="qty-cell qty-ok">23</td><td><span class="badge b-ok">OK</span></td><td><button class="adj-btn" onclick="adj('JETT 18',1)"><i class="ti ti-plus" style="font-size:13px"></i></button><button class="adj-btn" onclick="adj('JETT 18',-1)"><i class="ti ti-minus" style="font-size:13px"></i></button></td><td><button class="del-row-btn" onclick="askDeleteRow('JETT 18')" title="Supprimer cette référence"><i class="ti ti-trash" style="font-size:13px"></i></button></td></tr><tr class=""><td style="font-weight:500">JETT 19</td><td><input class="edit-cell" type="text" value="Courroies" placeholder="—" oninput="saveField('JETT 19','des',this.value)"></td><td><input class="edit-cell" type="text" value="GARAGE BIZ" placeholder="—" oninput="saveField('JETT 19','zone',this.value)" style="text-transform:uppercase"></td><td class="qty-cell qty-low">0</td><td><span class="badge b-zero">Rupture</span></td><td><button class="adj-btn" onclick="adj('JETT 19',1)"><i class="ti ti-plus" style="font-size:13px"></i></button><button class="adj-btn" onclick="adj('JETT 19',-1)"><i class="ti ti-minus" style="font-size:13px"></i></button></td><td><button class="del-row-btn" onclick="askDeleteRow('JETT 19')" title="Supprimer cette référence"><i class="ti ti-trash" style="font-size:13px"></i></button></td></tr><tr class=""><td style="font-weight:500">JETT 20</td><td><input class="edit-cell" type="text" value="Courroies" placeholder="—" oninput="saveField('JETT 20','des',this.value)"></td><td><input class="edit-cell" type="text" value="" placeholder="—" oninput="saveField('JETT 20','zone',this.value)" style="text-transform:uppercase"></td><td class="qty-cell qty-low">0</td><td><span class="badge b-zero">Rupture</span></td><td><button class="adj-btn" onclick="adj('JETT 20',1)"><i class="ti ti-plus" style="font-size:13px"></i></button><button class="adj-btn" onclick="adj('JETT 20',-1)"><i class="ti ti-minus" style="font-size:13px"></i></button></td><td><button class="del-row-btn" onclick="askDeleteRow('JETT 20')" title="Supprimer cette référence"><i class="ti ti-trash" style="font-size:13px"></i></button></td></tr><tr class=""><td style="font-weight:500">JETT 21</td><td><input class="edit-cell" type="text" value="Courroies" placeholder="—" oninput="saveField('JETT 21','des',this.value)"></td><td><input class="edit-cell" type="text" value="" placeholder="—" oninput="saveField('JETT 21','zone',this.value)" style="text-transform:uppercase"></td><td class="qty-cell qty-low">0</td><td><span class="badge b-zero">Rupture</span></td><td><button class="adj-btn" onclick="adj('JETT 21',1)"><i class="ti ti-plus" style="font-size:13px"></i></button><button class="adj-btn" onclick="adj('JETT 21',-1)"><i class="ti ti-minus" style="font-size:13px"></i></button></td><td><button class="del-row-btn" onclick="askDeleteRow('JETT 21')" title="Supprimer cette référence"><i class="ti ti-trash" style="font-size:13px"></i></button></td></tr><tr class=""><td style="font-weight:500">JETT 22</td><td><input class="edit-cell" type="text" value="Tubes de guidage 500mm" placeholder="—" oninput="saveField('JETT 22','des',this.value)"></td><td><input class="edit-cell" type="text" value="116" placeholder="—" oninput="saveField('JETT 22','zone',this.value)" style="text-transform:uppercase"></td><td class="qty-cell qty-low">0</td><td><span class="badge b-zero">Rupture</span></td><td><button class="adj-btn" onclick="adj('JETT 22',1)"><i class="ti ti-plus" style="font-size:13px"></i></button><button class="adj-btn" onclick="adj('JETT 22',-1)"><i class="ti ti-minus" style="font-size:13px"></i></button></td><td><button class="del-row-btn" onclick="askDeleteRow('JETT 22')" title="Supprimer cette référence"><i class="ti ti-trash" style="font-size:13px"></i></button></td></tr><tr class=""><td style="font-weight:500">JETT 23</td><td><input class="edit-cell" type="text" value="Tubes de guidage 805mm" placeholder="—" oninput="saveField('JETT 23','des',this.value)"></td><td><input class="edit-cell" type="text" value="" placeholder="—" oninput="saveField('JETT 23','zone',this.value)" style="text-transform:uppercase"></td><td class="qty-cell qty-low">0</td><td><span class="badge b-zero">Rupture</span></td><td><button class="adj-btn" onclick="adj('JETT 23',1)"><i class="ti ti-plus" style="font-size:13px"></i></button><button class="adj-btn" onclick="adj('JETT 23',-1)"><i class="ti ti-minus" style="font-size:13px"></i></button></td><td><button class="del-row-btn" onclick="askDeleteRow('JETT 23')" title="Supprimer cette référence"><i class="ti ti-trash" style="font-size:13px"></i></button></td></tr><tr class=""><td style="font-weight:500">JETT 24</td><td><input class="edit-cell" type="text" value="Lampes UV" placeholder="—" oninput="saveField('JETT 24','des',this.value)"></td><td><input class="edit-cell" type="text" value="5" placeholder="—" oninput="saveField('JETT 24','zone',this.value)" style="text-transform:uppercase"></td><td class="qty-cell qty-ok">5</td><td><span class="badge b-ok">OK</span></td><td><button class="adj-btn" onclick="adj('JETT 24',1)"><i class="ti ti-plus" style="font-size:13px"></i></button><button class="adj-btn" onclick="adj('JETT 24',-1)"><i class="ti ti-minus" style="font-size:13px"></i></button></td><td><button class="del-row-btn" onclick="askDeleteRow('JETT 24')" title="Supprimer cette référence"><i class="ti ti-trash" style="font-size:13px"></i></button></td></tr><tr class=""><td style="font-weight:500">JETT 25</td><td><input class="edit-cell" type="text" value="Moteur vanne air chaud" placeholder="—" oninput="saveField('JETT 25','des',this.value)"></td><td><input class="edit-cell" type="text" value="85" placeholder="—" oninput="saveField('JETT 25','zone',this.value)" style="text-transform:uppercase"></td><td class="qty-cell qty-ok">9</td><td><span class="badge b-ok">OK</span></td><td><button class="adj-btn" onclick="adj('JETT 25',1)"><i class="ti ti-plus" style="font-size:13px"></i></button><button class="adj-btn" onclick="adj('JETT 25',-1)"><i class="ti ti-minus" style="font-size:13px"></i></button></td><td><button class="del-row-btn" onclick="askDeleteRow('JETT 25')" title="Supprimer cette référence"><i class="ti ti-trash" style="font-size:13px"></i></button></td></tr><tr class=""><td style="font-weight:500">JETT 26</td><td><input class="edit-cell" type="text" value="Pressostats Sections 0,4-3mbar" placeholder="—" oninput="saveField('JETT 26','des',this.value)"></td><td><input class="edit-cell" type="text" value="2" placeholder="—" oninput="saveField('JETT 26','zone',this.value)" style="text-transform:uppercase"></td><td class="qty-cell qty-ok">9</td><td><span class="badge b-ok">OK</span></td><td><button class="adj-btn" onclick="adj('JETT 26',1)"><i class="ti ti-plus" style="font-size:13px"></i></button><button class="adj-btn" onclick="adj('JETT 26',-1)"><i class="ti ti-minus" style="font-size:13px"></i></button></td><td><button class="del-row-btn" onclick="askDeleteRow('JETT 26')" title="Supprimer cette référence"><i class="ti ti-trash" style="font-size:13px"></i></button></td></tr><tr class=""><td style="font-weight:500">JETT 27</td><td><input class="edit-cell" type="text" value="Transmetteur de pression bruleur 0-10mbar" placeholder="—" oninput="saveField('JETT 27','des',this.value)"></td><td><input class="edit-cell" type="text" value="" placeholder="—" oninput="saveField('JETT 27','zone',this.value)" style="text-transform:uppercase"></td><td class="qty-cell qty-low">0</td><td><span class="badge b-zero">Rupture</span></td><td><button class="adj-btn" onclick="adj('JETT 27',1)"><i class="ti ti-plus" style="font-size:13px"></i></button><button class="adj-btn" onclick="adj('JETT 27',-1)"><i class="ti ti-minus" style="font-size:13px"></i></button></td><td><button class="del-row-btn" onclick="askDeleteRow('JETT 27')" title="Supprimer cette référence"><i class="ti ti-trash" style="font-size:13px"></i></button></td></tr><tr class=""><td style="font-weight:500">JETT 28</td><td><input class="edit-cell" type="text" value="nouveau site" placeholder="—" oninput="saveField('JETT 28','des',this.value)"></td><td><input class="edit-cell" type="text" value="NEW" placeholder="—" oninput="saveField('JETT 28','zone',this.value)" style="text-transform:uppercase"></td><td class="qty-cell qty-ok">1000</td><td><span class="badge b-ok">OK</span></td><td><button class="adj-btn" onclick="adj('JETT 28',1)"><i class="ti ti-plus" style="font-size:13px"></i></button><button class="adj-btn" onclick="adj('JETT 28',-1)"><i class="ti ti-minus" style="font-size:13px"></i></button></td><td><button class="del-row-btn" onclick="askDeleteRow('JETT 28')" title="Supprimer cette référence"><i class="ti ti-trash" style="font-size:13px"></i></button></td></tr></tbody>
+    </table>
+  </div>
+  <div class="log-wrap">
+    <div class="log-title"><i class="ti ti-history" style="font-size:13px;vertical-align:-2px;margin-right:4px"></i>Historique des mouvements</div>
+    <div id="logList"><div style="font-size:12px;color:var(--color-text-tertiary)">Aucun mouvement encore.</div></div>
+  </div>
+</div>
+</div>
+
+<script>
+// ══ DONNÉES — NE PAS MODIFIER MANUELLEMENT ══
+const ADMIN_LOGIN = 'admin';
+const ADMIN_PASS  = 'F@striver354';
+let users = [{"login":"Karima","pass":"J@tt2000"}];
+let stock = [{"ref":"JETT 01","des":"Thermoucouples Software (1020/1460))","zone":"TH2","qty":2},{"ref":"JETT 02","des":"Thermoucouples Hardware (1020/1460)","zone":"TH3","qty":4},{"ref":"JETT 03","des":"Thermoucouples Software NG 1460","zone":"","qty":0},{"ref":"JETT 04","des":"Thermoucouples Hardware NG 1460","zone":"","qty":0},{"ref":"JETT 05","des":"Thermoucouples Software NG 1680","zone":"TH5","qty":4},{"ref":"JETT 06","des":"Thermoucouples Hardware NG 1680","zone":"TH1","qty":2},{"ref":"JETT 07","des":"Thermoucouples Hardware Ecoweb 1020","zone":"TH7","qty":4},{"ref":"JETT 08","des":"Thermoucouples Software Ecoweb 1020","zone":"TH8","qty":4},{"ref":"JETT 09","des":"Thermoucouples Hardware 2060","zone":"TH4","qty":3},{"ref":"JETT 10","des":"Thermoucouples Software 2060","zone":"TH6","qty":4},{"ref":"JETT 11","des":"Capteur de proximité","zone":"15","qty":4},{"ref":"JETT 12","des":"Bougies","zone":"127","qty":5},{"ref":"JETT 13","des":"Tiges ionisation","zone":"138","qty":4},{"ref":"JETT 14","des":"Potentiomètres 5Kohm  10tr","zone":"16","qty":217},{"ref":"JETT 15","des":"TACHOGENERATEUR","zone":"1","qty":0},{"ref":"JETT 16","des":"Regulateurs température","zone":"114","qty":6},{"ref":"JETT 17","des":"Courroies","zone":"GARAGE BIZ","qty":0},{"ref":"JETT 18","des":"Courroies","zone":"GARAGE BIZ","qty":23},{"ref":"JETT 19","des":"Courroies","zone":"GARAGE BIZ","qty":0},{"ref":"JETT 20","des":"Courroies","zone":"","qty":0},{"ref":"JETT 21","des":"Courroies","zone":"","qty":0},{"ref":"JETT 22","des":"Tubes de guidage 500mm","zone":"116","qty":0},{"ref":"JETT 23","des":"Tubes de guidage 805mm","zone":"","qty":0},{"ref":"JETT 24","des":"Lampes UV","zone":"5","qty":5},{"ref":"JETT 25","des":"Moteur vanne air chaud","zone":"85","qty":9},{"ref":"JETT 26","des":"Pressostats Sections 0,4-3mbar","zone":"2","qty":9},{"ref":"JETT 27","des":"Transmetteur de pression bruleur 0-10mbar","zone":"","qty":0},{"ref":"JETT 28","des":"nouveau site","zone":"NEW","qty":1000}];
+
+let mode='receive', hlRef=null, logs=[], currentUser=null, isAdmin=false;
+
+// ══ GÉNÉRATION DU FICHIER HTML ══
+// Construit le HTML propre à partir du template — sans capturer le DOM vivant
+// ══ CONFIGURATION GITHUB ══
+const GH_TOKEN = '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';
+const GH_REPO  = 'service843/stock-jett';
+const GH_FILE  = 'index.html';
+
+// ══ SAUVEGARDE SUR GITHUB ══
+async function saveToGitHub() {
+  const ind = document.getElementById('saveIndicator');
+  ind.style.display = 'inline';
+  ind.innerHTML = '<i class="ti ti-loader" style="font-size:13px;vertical-align:-2px;margin-right:3px"></i>Sauvegarde...';
+  ind.style.color = '#185FA5';
+  try {
+    // 1. Récupérer le SHA actuel du fichier (obligatoire pour l'API GitHub)
+    const getRes = await fetch('https://api.github.com/repos/'+GH_REPO+'/contents/'+GH_FILE, {
+      headers: {
+        'Authorization': 'token '+GH_TOKEN,
+        'Accept': 'application/vnd.github.v3+json'
+      }
+    });
+    const getData = await getRes.json();
+    const sha = getData.sha;
+    // 2. Construire le nouveau contenu HTML
+    const newContent = buildHTML();
+    // 3. Encoder en base64
+    const encoded = btoa(unescape(encodeURIComponent(newContent)));
+    // 4. Envoyer la mise à jour
+    const putRes = await fetch('https://api.github.com/repos/'+GH_REPO+'/contents/'+GH_FILE, {
+      method: 'PUT',
+      headers: {
+        'Authorization': 'token '+GH_TOKEN,
+        'Accept': 'application/vnd.github.v3+json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        message: 'Mise à jour stock — '+new Date().toLocaleString('fr-FR'),
+        content: encoded,
+        sha: sha
+      })
+    });
+    if(putRes.ok) {
+      ind.innerHTML = '<i class="ti ti-check" style="font-size:13px;vertical-align:-2px;margin-right:3px"></i>Sauvegardé en ligne';
+      ind.style.color = '#3B6D11';
+      setTimeout(()=>{ ind.style.display='none'; ind.style.color='#3B6D11'; }, 3000);
+    } else {
+      const err = await putRes.json();
+      throw new Error(err.message||'Erreur API GitHub');
+    }
+  } catch(e) {
+    ind.innerHTML = '<i class="ti ti-alert-triangle" style="font-size:13px;vertical-align:-2px;margin-right:3px"></i>Erreur : '+e.message;
+    ind.style.color = '#A32D2D';
+    setTimeout(()=>{ ind.style.display='none'; ind.style.color='#3B6D11'; }, 5000);
+    console.error('GitHub save error:', e);
+  }
+}
+
+function buildHTML() {
+  const sD = JSON.stringify(stock);
+  const uD = JSON.stringify(users);
+  // On reconstruit à partir du HTML source original (sans DOM modifié)
+  // en remplaçant uniquement les blocs de données entre marqueurs
+  const src = document.documentElement.outerHTML;
+  return '<!DOCTYPE html>\n' + src
+    .replace(/let users = \[[\s\S]*?\];/, 'let users = ' + uD + ';')
+    .replace(/let stock = \[[\s\S]*?\];/, 'let stock = ' + sD + ';')
+    // S'assurer que l'overlay login est bien visible au rechargement
+    .replace(/id="loginOverlay"/, 'id="loginOverlay"')
+    .replace(/id="loginOverlay"[^>]*class="[^"]*hidden[^"]*"/, 'id="loginOverlay"')
+    // S'assurer que l'app est cachée au rechargement
+    .replace(/id="app" style="display:\s*block[^"]*"/, 'id="app" style="display:none"')
+    .replace(/id="app" style="display:none"]*"/, 'id="app" style="display:none"');
+}
+
+function saveHTML() {
+  // Sauvegarde directement sur GitHub au lieu de télécharger en local
+  saveToGitHub();
+}
+
+// ══ LOGIN ══
+function doLogin() {
+  const u = document.getElementById('loginUser').value.trim();
+  const p = document.getElementById('loginPass').value;
+  const err = document.getElementById('loginErr');
+  if (u === ADMIN_LOGIN && p === ADMIN_PASS) {
+    currentUser = u; isAdmin = true;
+  } else {
+    const found = users.find(x => x.login === u && x.pass === p);
+    if (!found) {
+      err.textContent = 'Identifiant ou mot de passe incorrect.';
+      document.getElementById('loginPass').value = '';
+      document.getElementById('loginPass').focus();
+      return;
+    }
+    currentUser = u; isAdmin = false;
+  }
+  err.textContent = '';
+  document.getElementById('loginOverlay').classList.add('hidden');
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('welcomeUser').textContent = currentUser;
+  document.getElementById('adminPanelBtn').style.display = isAdmin ? 'inline-block' : 'none';
+  setMode('receive'); render(); updateStats();
+  setTimeout(() => document.getElementById('scanIn').focus(), 100);
+}
+
+async function doLogout() {
+  // Sauvegarde sur GitHub avant de déconnecter
+  await saveToGitHub();
+  // Déconnexion après sauvegarde
+  currentUser = null; isAdmin = false;
+  document.getElementById('loginOverlay').classList.remove('hidden');
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('adminPanel').classList.remove('open');
+  document.getElementById('loginUser').value = '';
+  document.getElementById('loginPass').value = '';
+  document.getElementById('loginErr').textContent = '';
+  setTimeout(() => document.getElementById('loginUser').focus(), 80);
+}
+
+// ══ PANNEAU ADMIN ══
+function openAdmin() { renderUsersList(); document.getElementById('adminPanel').classList.add('open'); }
+function closeAdmin() { document.getElementById('adminPanel').classList.remove('open'); }
+
+function escH(s){ return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+
+function renderUsersList() {
+  document.getElementById('usersList').innerHTML = users.map((u, i) => `
+    <div class="user-row">
+      <input class="u-input" type="text" value="${escH(u.login)}" placeholder="Identifiant" oninput="users[${i}].login=this.value">
+      <input class="u-input" type="text" value="${escH(u.pass)}" placeholder="Mot de passe" oninput="users[${i}].pass=this.value">
+      <button class="u-del" onclick="delUser(${i})" title="Supprimer"><i class="ti ti-trash" style="font-size:13px"></i></button>
+    </div>`).join('');
+}
+
+function addUserRow() {
+  users.push({login:'', pass:''});
+  renderUsersList();
+  const inputs = document.getElementById('usersList').querySelectorAll('.u-input');
+  if(inputs.length) inputs[inputs.length-2].focus();
+}
+
+function delUser(i) {
+  users.splice(i, 1);
+  renderUsersList();
+}
+
+function saveUsersAndDownload() {
+  saveToGitHub();
+  const fb = document.getElementById('fbUsers');
+  fb.textContent = '⏳ Sauvegarde en cours sur le site...';
+  clearTimeout(fb._t);
+  fb._t = setTimeout(() => { fb.textContent = ''; }, 5000);
+}
+
+// ══ STOCK ══
+function setMode(m) {
+  mode = m;
+  document.getElementById('btnR').className = 'mode-btn' + (m==='receive' ? ' m-receive' : '');
+  document.getElementById('btnS').className = 'mode-btn' + (m==='sell' ? ' m-sell' : '');
+  const b = document.getElementById('actBtn');
+  b.className = 'val-btn ' + (m==='receive' ? 'v-receive' : 'v-sell');
+  b.textContent = m==='receive' ? 'Réceptionner' : 'Vendre';
+  document.getElementById('fb').textContent = '';
+}
+
+function find(q) {
+  const s = q.trim().toLowerCase().replace(/\s+/g,' ');
+  return stock.find(i => i.ref.toLowerCase()===s || i.ref.toLowerCase().replace(/\s/g,'')===s.replace(/\s/g,''));
+}
+
+function doScan() {
+  const q = document.getElementById('scanIn').value;
+  const qty = Math.max(1, parseInt(document.getElementById('qtyIn').value)||1);
+  const fb = document.getElementById('fb');
+  if(!q.trim()){fb.className='feedback fb-err';fb.textContent='Veuillez saisir une référence.';return;}
+  const item = find(q);
+  if(!item){fb.className='feedback fb-err';fb.textContent='Référence introuvable : "'+q.trim()+'"';return;}
+  if(mode==='sell'&&item.qty<qty){fb.className='feedback fb-err';fb.textContent='Stock insuffisant pour '+item.ref+' (disponible : '+item.qty+')';return;}
+  if(mode==='receive'){item.qty+=qty;fb.className='feedback fb-ok';fb.textContent='✓ +'+qty+' reçu — '+item.ref+' → stock : '+item.qty;}
+  else{item.qty-=qty;fb.className='feedback fb-ok';fb.textContent='✓ −'+qty+' vendu — '+item.ref+' → stock : '+item.qty;}
+  addLog(item.ref, mode==='receive'?+qty:-qty, item.qty);
+  hlRef = item.ref;
+  document.getElementById('scanIn').value='';
+  document.getElementById('qtyIn').value='1';
+  render(); updateStats();
+  setTimeout(()=>{hlRef=null;render();},1300);
+  document.getElementById('scanIn').focus();
+}
+
+function addRef() {
+  const ref = document.getElementById('newRef').value.trim().toUpperCase();
+  const des = document.getElementById('newDes').value.trim();
+  const zone = document.getElementById('newZone').value.trim().toUpperCase();
+  const qty = Math.max(0, parseInt(document.getElementById('newQty').value)||0);
+  const fb = document.getElementById('fbAdd');
+  if(!ref){fb.className='feedback fb-err';fb.textContent='Veuillez saisir une référence.';return;}
+  if(find(ref)){fb.className='feedback fb-err';fb.textContent='La référence "'+ref+'" existe déjà.';return;}
+  stock.push({ref,des,zone,qty});
+  fb.className='feedback fb-ok';fb.textContent='✓ "'+ref+'" ajouté.';
+  document.getElementById('newRef').value='';
+  document.getElementById('newDes').value='';
+  document.getElementById('newZone').value='';
+  document.getElementById('newQty').value='0';
+  render(); updateStats();
+  setTimeout(()=>{fb.textContent='';},2500);
+}
+
+function saveField(ref,field,val) {
+  const item = stock.find(i=>i.ref===ref);
+  if(item) item[field]=val;
+}
+
+function addLog(ref,delta,newQty) {
+  const now = new Date();
+  const t = now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
+  logs.unshift({ref,delta,newQty,t});
+  if(logs.length>50) logs.pop();
+  const ll = document.getElementById('logList');
+  ll.innerHTML = logs.map(l=>'<div class="log-entry"><span class="log-time">'+l.t+'</span><span style="font-weight:500;color:var(--color-text-primary)">'+l.ref+'</span><span class="'+(l.delta>0?'log-plus':'log-minus')+'">'+(l.delta>0?'+'+l.delta:l.delta)+'</span><span style="color:var(--color-text-tertiary)">→ stock : '+l.newQty+'</span></div>').join('');
+}
+
+function render() {
+  const s = (document.getElementById('srch').value||'').toLowerCase();
+  const rows = stock.filter(i=>!s||i.ref.toLowerCase().includes(s)||i.des.toLowerCase().includes(s)||i.zone.toLowerCase().includes(s));
+  document.getElementById('tbody').innerHTML = rows.map(i=>{
+    const zero=i.qty===0,low=i.qty>0&&i.qty<=3;
+    const hl=hlRef===i.ref?(mode==='receive'?' hl-g':' hl-r'):'';
+    const badge=zero?'<span class="badge b-zero">Rupture</span>':low?'<span class="badge b-low">Faible</span>':'<span class="badge b-ok">OK</span>';
+    const dv=(i.des||'').replace(/"/g,'&quot;');
+    const zv=(i.zone||'').replace(/"/g,'&quot;');
+    return '<tr class="'+hl+'"><td style="font-weight:500">'+i.ref+'</td>'
+      +'<td><input class="edit-cell" type="text" value="'+dv+'" placeholder="—" oninput="saveField(\''+i.ref+'\',\'des\',this.value)"></td>'
+      +'<td><input class="edit-cell" type="text" value="'+zv+'" placeholder="—" oninput="saveField(\''+i.ref+'\',\'zone\',this.value)" style="text-transform:uppercase"></td>'
+      +'<td class="qty-cell '+(zero||low?'qty-low':'qty-ok')+'">'+i.qty+'</td>'
+      +'<td>'+badge+'</td>'
+      +'<td><button class="adj-btn" onclick="adj(\''+i.ref+'\',1)"><i class="ti ti-plus" style="font-size:13px"></i></button>'
+      +'<button class="adj-btn" onclick="adj(\''+i.ref+'\',-1)"><i class="ti ti-minus" style="font-size:13px"></i></button></td>'
+      +'<td><button class="del-row-btn" onclick="askDeleteRow(\''+i.ref+'\')" title="Supprimer cette référence"><i class="ti ti-trash" style="font-size:13px"></i></button></td></tr>';
+  }).join('');
+}
+
+function adj(ref,d) {
+  const item=stock.find(i=>i.ref===ref);
+  if(!item||(d<0&&item.qty<1))return;
+  item.qty+=d;
+  addLog(ref,d,item.qty);
+  hlRef=ref;render();updateStats();
+  setTimeout(()=>{hlRef=null;render();},900);
+}
+
+// ══ SUPPRESSION DE LIGNE ══
+let _refToDelete = null;
+
+function askDeleteRow(ref) {
+  _refToDelete = ref;
+  document.getElementById('confirmRef').textContent = ref;
+  document.getElementById('confirmModal').classList.add('open');
+}
+
+function closeConfirmModal() {
+  _refToDelete = null;
+  document.getElementById('confirmModal').classList.remove('open');
+}
+
+function confirmDeleteRow() {
+  if(!_refToDelete) return;
+  const idx = stock.findIndex(i=>i.ref===_refToDelete);
+  if(idx !== -1) stock.splice(idx, 1);
+  closeConfirmModal();
+  render(); updateStats();
+  showToast('🗑 Référence "'+_refToDelete+'" supprimée.');
+  _refToDelete = null;
+}
+
+function updateStats() {
+  const total=stock.reduce((a,i)=>a+i.qty,0);
+  const zeros=stock.filter(i=>i.qty===0).length;
+  document.getElementById('sTotal').textContent=stock.length;
+  document.getElementById('sQty').textContent=total.toLocaleString('fr-FR');
+  document.getElementById('sZero').textContent=zeros;
+}
+
+// ══ EXPORT STOCK CSV ══
+function exportStockCSV() {
+  const statusLabel = i => {
+    if(i.qty===0) return 'Rupture';
+    if(i.qty<=3) return 'Faible';
+    return 'OK';
+  };
+  const rows = [['Référence JETT','Désignation','Zone stockage','Quantité','Statut']]
+    .concat(stock.map(i=>[i.ref, i.des, i.zone, i.qty, statusLabel(i)]));
+  const csv = rows.map(r=>r.map(c=>'"'+String(c===null||c===undefined?'':c).replace(/"/g,'""')+'"').join(';')).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,\uFEFF' + encodeURIComponent(csv);
+  a.download = 'Stock_JETT_export.csv';
+  a.click();
+}
+
+// ══ IMPORT STOCK ══
+let importedRows = [];
+
+function openImportModal() {
+  importedRows = [];
+  document.getElementById('importErr').textContent = '';
+  document.getElementById('importOk').textContent = '';
+  document.getElementById('importPreview').style.display = 'none';
+  document.getElementById('importConfirmBtn').disabled = true;
+  document.getElementById('importFileInput').value = '';
+  document.getElementById('importModal').classList.add('open');
+}
+function closeImportModal() {
+  document.getElementById('importModal').classList.remove('open');
+}
+
+function parseCSV(text) {
+  // Détecter le séparateur ; ou ,
+  const firstLine = text.split('\n')[0];
+  const sep = (firstLine.split(';').length >= firstLine.split(',').length) ? ';' : ',';
+  const lines = text.split(/\r?\n/).filter(l=>l.trim()!=='');
+  const rows = lines.map(line => {
+    const cells = [];
+    let cur = '', inQ = false;
+    for(let ci=0; ci<line.length; ci++){
+      const ch = line[ci];
+      if(ch==='"'){ inQ=!inQ; continue; }
+      if(ch===sep && !inQ){ cells.push(cur.trim()); cur=''; continue; }
+      cur+=ch;
+    }
+    cells.push(cur.trim());
+    return cells;
+  });
+  return rows;
+}
+
+function handleImportFile(file) {
+  const err = document.getElementById('importErr');
+  const ok = document.getElementById('importOk');
+  err.textContent=''; ok.textContent='';
+  if(!file){ err.textContent='Aucun fichier sélectionné.'; return; }
+  if(file.size > 5*1024*1024){ err.textContent='Fichier trop volumineux (max 5 Mo).'; return; }
+  if(!file.name.match(/\.csv$/i)){ err.textContent='Format non supporté. Utilisez un fichier .csv'; return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const rows = parseCSV(e.target.result);
+      if(rows.length < 2){ err.textContent='Fichier vide ou sans données.'; return; }
+      // Détecter si la 1ère ligne est un en-tête
+      const firstCell = (rows[0][0]||'').toLowerCase();
+      const hasHeader = firstCell.includes('ref') || firstCell.includes('jett') === false && isNaN(parseFloat(rows[0][3]));
+      const dataRows = hasHeader ? rows.slice(1) : rows;
+      importedRows = dataRows
+        .filter(r => r.length >= 1 && (r[0]||'').trim() !== '')
+        .map(r => ({
+          ref:  (r[0]||'').trim().toUpperCase(),
+          des:  (r[1]||'').trim(),
+          zone: (r[2]||'').trim().toUpperCase(),
+          qty:  Math.max(0, parseInt(r[3])||0)
+        }));
+      if(importedRows.length === 0){ err.textContent='Aucune ligne valide trouvée.'; return; }
+      renderImportPreview();
+    } catch(ex) {
+      err.textContent = 'Erreur de lecture : ' + ex.message;
+    }
+  };
+  reader.readAsText(file, 'UTF-8');
+}
+
+function renderImportPreview() {
+  const statusLabel = i => { if(i.qty===0)return'Rupture'; if(i.qty<=3)return'Faible'; return'OK'; };
+  const statusBadge = i => {
+    const l=statusLabel(i);
+    const cls = l==='Rupture'?'b-zero':l==='Faible'?'b-low':'b-ok';
+    return '<span class="badge '+cls+'">'+l+'</span>';
+  };
+  document.getElementById('previewCount').textContent = importedRows.length + ' ligne(s) détectée(s)';
+  document.getElementById('previewBody').innerHTML = importedRows.map(i=>
+    '<tr><td style="font-weight:500">'+escH(i.ref)+'</td><td>'+escH(i.des)+'</td><td>'+escH(i.zone)+'</td><td style="font-weight:500">'+i.qty+'</td><td>'+statusBadge(i)+'</td></tr>'
+  ).join('');
+  document.getElementById('importPreview').style.display = 'block';
+  document.getElementById('importConfirmBtn').disabled = false;
+}
+
+function confirmImport() {
+  const mode = document.querySelector('input[name="importMode"]:checked').value;
+  if(mode === 'replace') {
+    stock.length = 0;
+    importedRows.forEach(r=>stock.push(r));
+  } else {
+    // Fusion : mise à jour si ref existe, sinon ajout
+    importedRows.forEach(r=>{
+      const existing = stock.find(s=>s.ref===r.ref);
+      if(existing){ existing.des=r.des; existing.zone=r.zone; existing.qty=r.qty; }
+      else { stock.push(r); }
+    });
+  }
+  render(); updateStats();
+  closeImportModal();
+  // Feedback dans la barre
+  const ok = document.getElementById('importOk');
+  ok.textContent = '';
+  // petit toast en haut de l'app
+  showToast(mode==='replace'
+    ? '✓ Stock remplacé — ' + stock.length + ' références chargées.'
+    : '✓ Fusion terminée — ' + importedRows.length + ' lignes importées.');
+}
+
+function showToast(msg) {
+  let t = document.getElementById('toast');
+  if(!t){
+    t = document.createElement('div');
+    t.id='toast';
+    t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#27500A;color:#fff;font-size:13px;font-weight:500;padding:10px 20px;border-radius:8px;z-index:999;box-shadow:0 4px 16px rgba(0,0,0,.2);transition:opacity .3s';
+    document.body.appendChild(t);
+  }
+  t.textContent=msg; t.style.opacity='1';
+  clearTimeout(t._h);
+  t._h=setTimeout(()=>{ t.style.opacity='0'; },3500);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('loginUser').addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('loginPass').focus(); });
+  document.getElementById('loginPass').addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
+  document.getElementById('loginBtn').addEventListener('click', doLogin);
+  document.getElementById('scanIn').addEventListener('keydown', e=>{ if(e.key==='Enter') doScan(); });
+  document.getElementById('logoutBtn').addEventListener('click', doLogout);
+  document.getElementById('adminPanelBtn').addEventListener('click', openAdmin);
+  document.getElementById('adminCloseBtn').addEventListener('click', closeAdmin);
+  document.getElementById('addUserBtn').addEventListener('click', addUserRow);
+  document.getElementById('saveUsersBtn').addEventListener('click', saveUsersAndDownload);
+  document.getElementById('adminPanel').addEventListener('click', function(e){ if(e.target===this) closeAdmin(); });
+  // Modale confirmation suppression
+  document.getElementById('confirmCancelBtn').addEventListener('click', closeConfirmModal);
+  document.getElementById('confirmDelBtn').addEventListener('click', confirmDeleteRow);
+  document.getElementById('confirmModal').addEventListener('click', function(e){ if(e.target===this) closeConfirmModal(); });
+  // Import
+  document.getElementById('openImportBtn').addEventListener('click', openImportModal);
+  document.getElementById('importCloseBtn').addEventListener('click', closeImportModal);
+  document.getElementById('importCancelBtn').addEventListener('click', closeImportModal);
+  document.getElementById('importConfirmBtn').addEventListener('click', confirmImport);
+  document.getElementById('importModal').addEventListener('click', function(e){ if(e.target===this) closeImportModal(); });
+  const dropZone = document.getElementById('dropZone');
+  const fileInput = document.getElementById('importFileInput');
+  dropZone.addEventListener('click', ()=>fileInput.click());
+  fileInput.addEventListener('change', e=>{ if(e.target.files[0]) handleImportFile(e.target.files[0]); });
+  dropZone.addEventListener('dragover', e=>{ e.preventDefault(); dropZone.classList.add('drag-over'); });
+  dropZone.addEventListener('dragleave', ()=>dropZone.classList.remove('drag-over'));
+  dropZone.addEventListener('drop', e=>{ e.preventDefault(); dropZone.classList.remove('drag-over'); if(e.dataTransfer.files[0]) handleImportFile(e.dataTransfer.files[0]); });
+  // Focus immédiat sur identifiant
+  document.getElementById('loginUser').focus();
+});
+</script>
+
+
+<div id="toast" style="position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: rgb(39, 80, 10); color: rgb(255, 255, 255); font-size: 13px; font-weight: 500; padding: 10px 20px; border-radius: 8px; z-index: 999; box-shadow: rgba(0, 0, 0, 0.2) 0px 4px 16px; transition: opacity 0.3s; opacity: 0;">🗑 Référence "null" supprimée.</div>
+</body></html>
